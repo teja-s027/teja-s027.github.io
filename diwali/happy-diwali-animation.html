@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali — Teja S</title>
+
+<!-- LinkedIn / social preview: when this live link is pasted into a
+     LinkedIn post, this title, line and image appear on the post card.
+     The image file "diwali-post.png" must sit in the same repo. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Happy Diwali — Teja S">
+<meta property="og:description" content="An interactive Diwali greeting — enter your name and get a personal wish with a special line.">
+<meta property="og:url" content="https://teja-s027.github.io/diwali/happy-diwali-animation.html">
+<meta property="og:image" content="https://teja-s027.github.io/diwali/diwali-post.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+/* ============================================================
+   SECTION 1: PAGE SETUP & BACKGROUND
+   Deep navy background (matches Teja's LinkedIn banner style)
+   with a soft golden glow in the centre.
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", Georgia, serif;
+  background: radial-gradient(circle at 50% 38%, #16295e 0%, #0b1638 55%, #060d24 100%);
+  color: #f5d67b;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+/* Faint mandala-style pattern in the corners (pure CSS circles) */
+body::before, body::after {
+  content: "";
+  position: absolute;
+  width: 420px; height: 420px;
+  border: 2px solid rgba(245, 214, 123, 0.10);
+  border-radius: 50%;
+  box-shadow: 0 0 0 30px rgba(245,214,123,0.04), 0 0 0 70px rgba(245,214,123,0.03);
+}
+body::before { top: -180px; left: -180px; }
+body::after  { top: -180px; right: -180px; }
+
+/* ============================================================
+   SECTION 2: SPARKLE CANVAS (golden particles + fireworks)
+   Drawn by JavaScript at the bottom of this file.
+   ============================================================ */
+#sparkles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ============================================================
+   SECTION 3: MAIN TITLE — "Happy Diwali"
+   Each letter is a <span> made by JavaScript.
+   Letters FADE IN one by one (no typing effect, no cursor),
+   with a golden glow, and then STAY visible.
+   ============================================================ */
+.title {
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  z-index: 2;
+  color: #f5c542; /* solid gold — always visible, no gradient trick */
+}
+
+.title .letter {
+  display: inline-block;
+  color: #ffd95e;
+  opacity: 0;                      /* start invisible */
+  transform: translateY(14px) scale(0.96);
+  animation: letterFadeIn 0.9s ease forwards;  /* delay set per-letter by JS */
+  text-shadow: 0 0 10px rgba(255, 200, 70, 0.65), 0 0 26px rgba(255, 170, 40, 0.35);
+}
+.title .space { display: inline-block; width: 0.35em; }
+
+@keyframes letterFadeIn {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.96); filter: blur(3px) drop-shadow(0 0 0 rgba(255,210,90,0)); }
+  60%  { opacity: 1; filter: blur(0) drop-shadow(0 0 18px rgba(255,210,90,0.95)); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0) drop-shadow(0 0 8px rgba(255,210,90,0.55)); }
+}
+
+/* ============================================================
+   SECTION 4: WISH LINE (fades in after the title finishes)
+   Change the START time in the JavaScript section if you
+   change the title text.
+   ============================================================ */
+.wish {
+  margin-top: 22px;
+  font-size: clamp(1.05rem, 3vw, 1.6rem);
+  color: #ffeec2;
+  z-index: 2;
+  opacity: 0;
+  animation: softFadeIn 1.6s ease forwards;
+  animation-delay: 2.6s; /* starts after the letters finish */
+}
+
+@keyframes softFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SECTION 5: DIYAS (oil lamps) WITH FLICKERING FLAMES
+   Three lamps at the bottom. The flame flickers forever.
+   ============================================================ */
+.diyas {
+  display: flex;
+  gap: clamp(24px, 6vw, 64px);
+  margin-top: 56px;
+  z-index: 2;
+  opacity: 0;
+  animation: softFadeIn 1.6s ease forwards;
+  animation-delay: 1.2s;
+}
+
+.diya { position: relative; width: 110px; height: 70px; }
+
+/* Lamp bowl */
+.diya .bowl {
+  position: absolute; bottom: 0; left: 0;
+  width: 110px; height: 42px;
+  background: linear-gradient(180deg, #e8a33d, #9c5c14);
+  border-radius: 6px 6px 60px 60px / 6px 6px 46px 46px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.45), inset 0 4px 8px rgba(255,220,150,0.7);
+}
+
+/* Flame */
+.diya .flame {
+  position: absolute; bottom: 40px; left: 50%;
+  width: 18px; height: 34px;
+  margin-left: -9px;
+  background: radial-gradient(circle at 50% 78%, #fff6c9 0%, #ffd23e 38%, #ff8a00 78%, rgba(255,120,0,0) 100%);
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  transform-origin: 50% 100%;
+  animation: flicker 0.55s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 14px rgba(255,170,40,0.95));
+}
+.diya:nth-child(2) .flame { animation-duration: 0.42s; height: 40px; }
+.diya:nth-child(3) .flame { animation-duration: 0.65s; }
+
+@keyframes flicker {
+  from { transform: scaleY(1) rotate(-2.5deg); }
+  to   { transform: scaleY(1.14) rotate(2.5deg); }
+}
+
+/* Warm glow under each lamp */
+.diya .glow {
+  position: absolute; bottom: -14px; left: 50%;
+  width: 150px; height: 34px; margin-left: -75px;
+  background: radial-gradient(ellipse at center, rgba(255,180,60,0.5), rgba(255,180,60,0) 70%);
+}
+
+/* ============================================================
+   SECTION 6: ENTER YOUR NAME — PERSONAL WISH
+   Anyone types their name, clicks the button, and gets a
+   personal "Happy Diwali, <name>!" wish + a special line.
+   ============================================================ */
+.name-box {
+  margin-top: 40px;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  animation: softFadeIn 1.4s ease forwards;
+  animation-delay: 3s;
+}
+
+.name-box input {
+  width: min(280px, 78vw);
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 214, 123, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff3cf;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+}
+.name-box input::placeholder { color: rgba(255, 238, 194, 0.55); }
+.name-box input:focus { border-color: #ffd95e; box-shadow: 0 0 14px rgba(255, 200, 70, 0.45); }
+
+.name-box button {
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(180deg, #ffe9a8, #f5c542);
+  color: #3a2400;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245, 197, 66, 0.45);
+  transition: transform 0.2s ease;
+}
+.name-box button:hover { transform: scale(1.05); }
+
+/* The personal wish that appears after entering a name */
+#personalWish {
+  margin-top: 30px;
+  z-index: 2;
+  max-width: 720px;
+  display: none; /* hidden until a name is entered */
+}
+#personalWish.show {
+  display: block;
+  animation: wishPop 0.9s ease forwards;
+}
+#personalWish h2 {
+  font-size: clamp(1.7rem, 5.5vw, 3rem);
+  color: #ffd95e;
+  text-shadow: 0 0 14px rgba(255, 200, 70, 0.7), 0 0 34px rgba(255, 170, 40, 0.4);
+}
+#personalWish p {
+  margin-top: 12px;
+  font-size: clamp(1rem, 2.8vw, 1.3rem);
+  font-style: italic;
+  color: #ffeec2;
+  line-height: 1.55;
+}
+
+@keyframes wishPop {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ============================================================
+   SECTION 7: SIGNATURE & REPLAY BUTTON
+   ============================================================ */
+.signature {
+  margin-top: 54px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(245, 214, 123, 0.45);
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  letter-spacing: 0.06em;
+  color: #f5d67b;
+  z-index: 2;
+  opacity: 0;
+  animation: softFadeIn 1.6s ease forwards;
+  animation-delay: 3.6s;
+}
+
+#replayBtn {
+  margin-top: 26px;
+  z-index: 2;
+  background: transparent;
+  color: #f5d67b;
+  border: 1px solid rgba(245,214,123,0.7);
+  border-radius: 999px;
+  padding: 9px 22px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  opacity: 0;
+  animation: softFadeIn 1.2s ease forwards;
+  animation-delay: 4.4s;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+#replayBtn:hover { background: #f5c542; color: #0b1638; }
+</style>
+</head>
+
+<body>
+
+<!-- Sparkle canvas (Section 2) -->
+<canvas id="sparkles"></canvas>
+
+<!-- ==========================================================
+     SECTION 7: PAGE CONTENT
+     EDIT YOUR TEXT HERE:
+     - Title: change the data-text value below
+     - Wish line: change the text inside <p class="wish">
+     - Name line: change the text inside <div class="signature">
+     =========================================================== -->
+<h1 class="title" id="title" data-text="Happy Diwali">Happy Diwali</h1>
+
+<p class="wish">Wishing you prosperity, health, happiness and new beginnings</p>
+
+<!-- Enter-your-name box (Section 6): type a name, click the button,
+     and a personal wish with a special line appears below it. -->
+<div class="name-box">
+  <input type="text" id="nameInput" placeholder="Enter your name..." maxlength="30">
+  <button id="wishBtn" type="button">&#10024; Get My Wish</button>
+</div>
+
+<div id="personalWish">
+  <h2 id="personalTitle"></h2>
+  <p id="specialLine"></p>
+</div>
+
+<div class="diyas">
+  <div class="diya"><div class="glow"></div><div class="flame"></div><div class="bowl"></div></div>
+  <div class="diya"><div class="glow"></div><div class="flame"></div><div class="bowl"></div></div>
+  <div class="diya"><div class="glow"></div><div class="flame"></div><div class="bowl"></div></div>
+</div>
+
+<div class="signature">Teja S &nbsp;|&nbsp; Aspiring Data Analyst</div>
+
+<button id="replayBtn" onclick="location.reload()">&#8635; Replay Animation</button>
+
+<script>
+/* ============================================================
+   SECTION 8: LETTER-BY-LETTER FADE-IN (JavaScript)
+   Splits the title into single letters and gives each letter
+   a slightly later animation-delay, so they appear one by one.
+   LETTER_DELAY = gap between letters (in seconds).
+   ============================================================ */
+const LETTER_DELAY = 0.16; // <-- change this to make it faster/slower
+
+const titleEl = document.getElementById("title");
+const text = titleEl.getAttribute("data-text");
+titleEl.textContent = ""; // clear the plain fallback text, then rebuild letter by letter
+
+[...text].forEach((ch, i) => {
+  if (ch === " ") {
+    const space = document.createElement("span");
+    space.className = "space";
+    titleEl.appendChild(space);
+  } else {
+    const span = document.createElement("span");
+    span.className = "letter";
+    span.textContent = ch;
+    span.style.animationDelay = (0.3 + i * LETTER_DELAY) + "s";
+    titleEl.appendChild(span);
+  }
+});
+
+/* ============================================================
+   SECTION 9: GOLDEN SPARKLES + FIREWORK BURSTS (JavaScript)
+   Sparkles float upward all the time. Every few seconds a
+   small golden firework bursts. No library needed.
+   ============================================================ */
+const canvas = document.getElementById("sparkles");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const particles = [];
+
+// One floating sparkle
+function addSparkle() {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: canvas.height + 10,
+    r: Math.random() * 2 + 0.6,
+    speed: Math.random() * 0.7 + 0.25,
+    drift: (Math.random() - 0.5) * 0.4,
+    alpha: Math.random() * 0.6 + 0.3,
+    life: 1
+  });
+}
+
+// One firework burst
+function addFirework() {
+  const cx = Math.random() * canvas.width * 0.7 + canvas.width * 0.15;
+  const cy = Math.random() * canvas.height * 0.35 + canvas.height * 0.08;
+  for (let i = 0; i < 42; i++) {
+    const angle = (Math.PI * 2 * i) / 42;
+    const speed = Math.random() * 2.4 + 1.2;
+    particles.push({
+      x: cx, y: cy,
+      r: Math.random() * 2 + 1,
+      speed: -0.2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      life: 1,
+      firework: true
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (Math.random() < 0.35) addSparkle();
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    if (p.firework) {
+      p.x += p.vx; p.y += p.vy;
+      p.vy += 0.015;              // gentle gravity
+      p.life -= 0.012;
+      p.alpha = Math.max(p.life, 0);
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+    } else {
+      p.y -= p.speed;
+      p.x += p.drift;
+      if (p.y < -12) { particles.splice(i, 1); continue; }
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 205, 92, " + p.alpha + ")";
+    ctx.shadowColor = "rgba(255, 190, 60, 0.9)";
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// First firework soon after the title finishes, then every 4 seconds
+setTimeout(addFirework, 2800);
+setInterval(addFirework, 4000);
+
+/* ============================================================
+   SECTION 10: PERSONAL WISH — "ENTER YOUR NAME" (JavaScript)
+   When someone enters a name and clicks "Get My Wish" (or
+   presses Enter), show:
+     Happy Diwali, <name>!
+   plus ONE special line (picked from the list below).
+   EDIT THE SPECIAL LINES HERE — add your own lines to the list.
+   ============================================================ */
+const SPECIAL_LINES = [
+  "May the light of the diyas fill your home with happiness, your heart with love, and your life with endless prosperity.",
+  "This Diwali, may every spark of light bring you a new dream, a new hope and a new beginning.",
+  "Wishing you a year as bright as the fireworks, as sweet as the mithai, and as joyful as this festival of lights.",
+  "May Goddess Lakshmi bless you with wealth, good health and success in everything you do.",
+  "Let this Diwali remove all darkness from your life and fill every day with light, laughter and love."
+];
+
+const nameInput = document.getElementById("nameInput");
+const wishBtn = document.getElementById("wishBtn");
+const personalWish = document.getElementById("personalWish");
+const personalTitle = document.getElementById("personalTitle");
+const specialLine = document.getElementById("specialLine");
+
+function showPersonalWish() {
+  const name = nameInput.value.trim() || "Friend";
+  personalTitle.textContent = "Happy Diwali, " + name + "! \u{1FA94}";
+  specialLine.textContent = SPECIAL_LINES[Math.floor(Math.random() * SPECIAL_LINES.length)];
+
+  // Restart the pop animation even if a wish is already showing
+  personalWish.classList.remove("show");
+  void personalWish.offsetWidth; // force reflow so the animation replays
+  personalWish.classList.add("show");
+
+  addFirework(); // celebrate with a firework burst
+  personalWish.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+wishBtn.addEventListener("click", showPersonalWish);
+nameInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") showPersonalWish();
+});
+</script>
+
+</body>
+</html>
